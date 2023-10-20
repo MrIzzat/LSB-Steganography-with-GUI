@@ -69,7 +69,7 @@ color: rgb(0, 0, 0);</string>
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>260</y>
+     <y>280</y>
      <width>771</width>
      <height>41</height>
     </rect>
@@ -92,7 +92,7 @@ color: rgb(0, 0, 0);</string>
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>340</y>
+     <y>350</y>
      <width>771</width>
      <height>41</height>
     </rect>
@@ -132,7 +132,7 @@ background-color: rgb(255, 83, 83);</string>
    <property name="geometry">
     <rect>
      <x>830</x>
-     <y>250</y>
+     <y>280</y>
      <width>251</width>
      <height>51</height>
     </rect>
@@ -152,7 +152,7 @@ background-color: rgb(255, 83, 83);</string>
    <property name="geometry">
     <rect>
      <x>830</x>
-     <y>330</y>
+     <y>350</y>
      <width>251</width>
      <height>51</height>
     </rect>
@@ -272,6 +272,26 @@ background-color: rgb(255, 83, 83);</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelMaxSize">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>230</y>
+     <width>741</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

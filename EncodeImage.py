@@ -30,7 +30,7 @@ class EncodeImageClass:
 
         imageSize = len(image) * len(image[0]) * len(image[0][0])
 
-        maxMessageSize = int(imageSize / 8)
+        maxMessageSize = int(imageSize / 8) -50
 
         print("The maximum image size: " + str(maxMessageSize))
 

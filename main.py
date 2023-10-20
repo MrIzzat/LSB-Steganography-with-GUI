@@ -1,8 +1,10 @@
+import os
 import sys
 import threading
 import time
 from threading import Thread
 
+import cv2
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -56,6 +58,17 @@ class EncodeFile(QDialog):
 
         if len(coverImageName[0]) != 0:
             self.lnedtCoverImage.setText(coverImageName[0][0])
+
+            image = cv2.imread(self.lnedtCoverImage.text())
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+            imageSize = len(image) * len(image[0]) * len(image[0][0])
+
+            maxMessageSize = int(imageSize / 8) -50
+
+            self.labelMaxSize.setText("Maximum Size This Photo Can Carry (bytes): "+str(maxMessageSize))
+        else:
+            self.labelMaxSize.setText("")
 
     def loadMessageFile(self):
         filter = "Text files (*.txt)"
@@ -116,12 +129,52 @@ class EncodeFile(QDialog):
 
                     retval = msg.exec_()
                 else:
-                    encodeImage = EncodeImage.EncodeImageClass()
 
-                    t1 = Thread(target=self.EncodeThread, daemon=True, kwargs={'encodeImage': encodeImage})
-                    t1.start()
+                    #Check to see if the text fits in the image
+                    image = cv2.imread(self.lnedtCoverImage.text())
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-                    self.startTheThread(encodeImage)
+                    imageSize = len(image) * len(image[0]) * len(image[0][0])
+
+                    maxMessageSize = int(imageSize / 8) -50
+
+                    with open(self.lnedtMessageFile.text()) as f:
+                        messageContent = f.read()
+
+                    messageContent = messageContent.replace('|', '')
+
+
+                    messageContentSize = len(messageContent)
+
+                    messageFileName = os.path.basename(f.name)
+                    messageSignature = generateSignature(messageContent)
+
+                    messageToHide = messageFileName + "|" + str(
+                        messageContentSize) + "|" + messageSignature + "|" + messageContent
+
+                    if len(messageToHide) > maxMessageSize -1 :
+
+                        msg = QMessageBox()
+                        msg.setIcon(QMessageBox.Warning)
+
+                        msg.setText("The message is too big to hide in this photo.")
+
+                        msg.setWindowTitle("Message Too Big!")
+
+                        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+                        retval = msg.exec_()
+
+                    else:
+                        encodeImage = EncodeImage.EncodeImageClass()
+
+                        t1 = Thread(target=self.EncodeThread, daemon=True, kwargs={'encodeImage': encodeImage})
+                        t1.start()
+
+                        self.startTheThread(encodeImage)
+
+
+
 
     def startTheThread(self, encodeImage):
         t = threading.Thread(daemon=True, name='StatusThread', target=myThreadEncoder,
