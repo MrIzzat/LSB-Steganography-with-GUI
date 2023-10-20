@@ -15,11 +15,22 @@ import DecodeImage
 import EncodeImage
 from GenerateSignature import generateSignature
 
+#For building the project
+#https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class MainMenu(QDialog):
     def __init__(self):
         super(MainMenu, self).__init__()
-        loadUi("UI Files/MainMenu.ui", self)
+        loadUi(resource_path("UI Files\\MainMenu.ui"), self)
         self.setFixedHeight(532)
         self.setFixedWidth(833)
         self.btnEncode.clicked.connect(self.GoToEncodePage)
@@ -43,7 +54,7 @@ class MainMenu(QDialog):
 class EncodeFile(QDialog):
     def __init__(self):
         super(EncodeFile, self).__init__()
-        loadUi("UI Files/EncodeFilePage.ui", self)
+        loadUi(resource_path("UI Files\\EncodeFilePage.ui"), self)
 
         self.btnCoverImage.clicked.connect(self.loadCoverImage)
         self.btnMessageFile.clicked.connect(self.loadMessageFile)
@@ -234,7 +245,7 @@ def myThreadEncoder(callbackFunc, encodeImage):
 class DecodeFile(QDialog):
     def __init__(self):
         super(DecodeFile, self).__init__()
-        loadUi("UI Files/DecodeFilePage.ui", self)
+        loadUi("UI Files\\DecodeFilePage.ui", self)
         self.btnCoverImage.clicked.connect(self.loadCoverImage)
         self.btnOutputDestination.clicked.connect(self.loadOutputDestination)
         self.btnDecode.clicked.connect(self.thread)
@@ -378,7 +389,7 @@ def myThreadDecoder(callbackFunc, decodeImage):
 class GenerateSignature(QDialog):
     def __init__(self):
         super(GenerateSignature, self).__init__()
-        loadUi("UI Files/GenerateFileSignaturePage.ui", self)
+        loadUi(resource_path("UI Files\\GenerateFileSignaturePage.ui"), self)
         self.btnFile.clicked.connect(self.loadFile)
         self.btnOutputDestination.clicked.connect(self.loadOutputDestination)
         self.btnGenerate.clicked.connect(self.generate)
@@ -438,7 +449,7 @@ widget = QtWidgets.QStackedWidget()  # Create an instance of QStackedWidget
 mainMenuPage = MainMenu()
 widget.addWidget(mainMenuPage)  # Add the MainMenu page to the stack
 widget.setWindowTitle("Izzat's LSB Steganography")
-widget.setWindowIcon(QtGui.QIcon('favicon.png'))
+widget.setWindowIcon(QtGui.QIcon(resource_path('favicon.png')))
 
 encodePage = EncodeFile()
 widget.addWidget(encodePage)
@@ -454,3 +465,7 @@ sys.exit(app.exec_())
 
 # If the gui is closed while the encoding proccess is ongoing, the program will throw an exception
 # This is intentional. Its purpose is to prevent the threads from continously running once the gui is shut down.
+
+#https://www.youtube.com/watch?v=p3tSLatmGvU
+
+#pyinstaller --name=IzzatStego --onefile --windowed --icon=favicon.png main.py
