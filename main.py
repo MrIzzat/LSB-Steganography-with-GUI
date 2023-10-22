@@ -192,7 +192,8 @@ class EncodeFile(QDialog):
                              args=[self.UpdateStatus, encodeImage])
         t.start()
 
-    def UpdateStatus(self, progress):
+    def UpdateStatus(self, encodeImage):
+        progress = encodeImage.progress
         self.progressBar.setValue(progress)
         if progress == 10:
             self.labelStatus.setText("Opened Image")
@@ -212,6 +213,25 @@ class EncodeFile(QDialog):
                             if progress == 100:
                                 self.labelStatus.setText("Done")
 
+                                if encodeImage.success:
+                                    msg = QMessageBox()
+                                    msg.setIcon(QMessageBox.Information)
+                                    msg.setText("Text Encoded Succssfully")
+                                    msg.setWindowTitle("Success")
+
+                                    msg.setStandardButtons(QMessageBox.Ok)
+                                    retval = msg.exec_()
+
+                                else:
+
+                                    msg = QMessageBox()
+                                    msg.setIcon(QMessageBox.Warning)
+                                    msg.setText(encodeImage.reason)
+                                    msg.setWindowTitle("Failure :(")
+
+                                    msg.setStandardButtons(QMessageBox.Ok)
+                                    retval = msg.exec_()
+
     def EncodeThread(self, encodeImage):
         encodeImage.EncodeImageMethod(self.lnedtCoverImage.text()
                                       , self.lnedtMessageFile.text()
@@ -224,7 +244,7 @@ class EncodeFile(QDialog):
 
 
 class Communicate(QObject):
-    myGUI_signal = pyqtSignal(int)
+    myGUI_signal = pyqtSignal(EncodeImage.EncodeImageClass)
 
 
 def myThreadEncoder(callbackFunc, encodeImage):
@@ -236,7 +256,7 @@ def myThreadEncoder(callbackFunc, encodeImage):
         time.sleep(1)
         if progress != encodeImage.progress:
             progress = encodeImage.progress
-            mySrc.myGUI_signal.emit(progress)
+            mySrc.myGUI_signal.emit(encodeImage)
 
 
 # https://stackoverflow.com/questions/37252756/simplest-way-for-pyqt-threading
@@ -262,9 +282,12 @@ class DecodeFile(QDialog):
 
     def loadOutputDestination(self):
 
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Set Output Destination", './', "Text File (*.txt")
-        if len(filename) != 0:
-            self.lnedtOutputDestination.setText(filename)
+        #filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Set Output Destination", './', "Text File (*.txt")
+
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self,"Set Output Destination",'./')
+
+        if len(directory) != 0:
+            self.lnedtOutputDestination.setText(directory)
 
     def thread(self):
         if len(self.lnedtCoverImage.text()) == 0:

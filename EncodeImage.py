@@ -8,6 +8,8 @@ from GenerateSignature import generateSignature
 class EncodeImageClass:
     progress = 0
     finished = False
+    success=False
+    reason="Working..."
 
     def EncodeImageMethod(self, coverImagePath, messageFilePath, outputImageDestination):
 
@@ -16,12 +18,6 @@ class EncodeImageClass:
 
         # methods used
 
-
-        def IntegerToBinaryString(number):
-            return '{0:08b}'.format(number)
-
-        def BinaryStringToInteger(BinaryString):
-            return int(BinaryString, 2)
 
         # Choose photo
 
@@ -56,7 +52,10 @@ class EncodeImageClass:
         # See if the image will fit inside the photo
 
         if len(messageToHide) > maxMessageSize - 1:
-            print("The message is too big to hide in this photo.")
+            self.finished=True
+            self.progress=100
+            self.reason = "The message is too big ot hide in this photo"
+            self.success=False
             return
 
             # Hide the message
@@ -88,78 +87,30 @@ class EncodeImageClass:
 
 
         self.progress = 40
-        # Convert Cover Image to Binary
 
-        CoverImageBinary = []
-
-        i = 0
-
-        for row in randomRows:
-            BinaryRow = []
-            if (i > len(messageToAsciiBinarySingleList)):
-                break
-            for column in randomColumns:
-                BinaryColumn = []
-
-                for color in range(len(image[row][column])):
-                    BinaryColor = IntegerToBinaryString(image[row][column][color])
-                    BinaryColumn.append(BinaryColor)
-                    i += 1
-                BinaryRow.append(BinaryColumn)
-            CoverImageBinary.append(BinaryRow)
-
-
-        self.progress = 60
         # Encode the Message into the Cover Image *both are in binary*
 
         i = 0
 
-        for row in range(len(CoverImageBinary)):
-            for column in range(len(CoverImageBinary[row])):
-                for color in range(len(CoverImageBinary[row][column])):
+        for row in randomRows:
+            for column in randomColumns:
+                for color in range(len(image[row][column])):
                     if (i == len(messageToAsciiBinarySingleList)):
                         break
-                    if (CoverImageBinary[row][column][color][-1] != messageToAsciiBinarySingleList[i]):
-                        # print(i)
-                        CoverImageBinary[row][column][color] = CoverImageBinary[row][column][color][0:-1] + \
-                                                               messageToAsciiBinarySingleList[i]
+                    if (messageToAsciiBinarySingleList[i] == '1'):
+                        image[row][column][color] |= 1
+
+                    else:
+                        image[row][column][color] &= ~1
+
                     i += 1
             else:
                 continue
 
         self.progress = 80
-        # Convert the cover pixel values back to integer to store as a new picture
 
-        i = 0
-        CoverImageBackToInteger = []
-
-        for row in range(len(CoverImageBinary)):
-            IntegerRow = []
-            if (i == len(messageToAsciiBinarySingleList)):
-                break
-            for column in range(len(CoverImageBinary[row])):
-                IntegerColumn = []
-
-                for color in range(len(CoverImageBinary[row][column])):
-                    if (i == len(messageToAsciiBinarySingleList)):
-                        break
-                    IntegerColor = BinaryStringToInteger(CoverImageBinary[row][column][color])
-                    IntegerColumn.append(IntegerColor)
-
-                IntegerRow.append(IntegerColumn)
-            CoverImageBackToInteger.append(IntegerRow)
-
-        #Reorder the columns to the usual order
-
-        coverImageWithHiddenMessageAsNumpy = np.array(CoverImageBackToInteger)
-
-        for row in range(len(coverImageWithHiddenMessageAsNumpy)):
-            for column in range(len(coverImageWithHiddenMessageAsNumpy[row])):
-                image[randomRows[row]][randomColumns[column]] = coverImageWithHiddenMessageAsNumpy[row][column]
 
         # Save the image
-
-
 
         im = Image.fromarray(image.astype('uint8')).convert('RGB')
 
@@ -169,3 +120,4 @@ class EncodeImageClass:
 
         self.progress = 100
         self.finished = True
+        self.success = True

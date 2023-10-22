@@ -1,14 +1,13 @@
 import cv2
 import random
-import collections as ct
 from GenerateSignature import generateSignature
 
 
 class DecodeImageClass:
     progress = 0
     finished = False
-    success=False
-    reason="Success"
+    success = False
+    reason = "Success"
 
     def DecodeImageMethod(self, CoverImage, OutputFile):
         # methods used
@@ -36,36 +35,21 @@ class DecodeImageClass:
         # First, the first 400 bits will be extracted
         # 400 bits should be enough to represent both the file name and file size
 
-        StegoImageBinaryList = []
-
-        i = 0
-        for row in randomRows:
-            BinaryRow = []
-            if i > 400:  # For header
-                break
-            for column in randomColumns:
-                BinaryColumn = []
-
-                for color in range(len(StegoImage[row][column])):
-                    BinaryColor = IntegerToBinaryString(StegoImage[row][column][color])
-                    BinaryColumn.append(BinaryColor)
-                    i += 1
-                BinaryRow.append(BinaryColumn)
-            StegoImageBinaryList.append(BinaryRow)
-
         self.progress = 10
 
         HiddenMessageInformationBinary = []
 
-        HiddenMessageInformationLength = 400  # For header data
+        HiddenMessageInformationLength = 400
 
         i = 0
-        for row in range(len(StegoImageBinaryList)):
-            for column in range(len(StegoImageBinaryList[row])):
-                for color in range(len(StegoImageBinaryList[row][column])):
-                    if (i == HiddenMessageInformationLength):
+        for row in randomRows:
+            for column in randomColumns:
+                for color in range(len(StegoImage[row][column])):
+                    if i == HiddenMessageInformationLength:
                         break
-                    HiddenMessageInformationBinary.append(StegoImageBinaryList[row][column][color][-1])
+
+                    bit = StegoImage[row][column][color] & 1
+                    HiddenMessageInformationBinary.append(str(bit))
                     i += 1
             else:
                 continue
@@ -104,15 +88,15 @@ class DecodeImageClass:
         # Store the hidden message information
 
         hiddenMessageInformationSplit = HiddenMessageInformation.split('|')
-        if len(hiddenMessageInformationSplit)!=4:
-            self.finished=True
-            self.success=False
-            self.reason="No Hidden Data in this image"
-            self.progress=100
+        if len(hiddenMessageInformationSplit) != 4:
+            self.finished = True
+            self.success = False
+            self.reason = "No Hidden Data in this image"
+            self.progress = 100
             return
 
         hiddenMessageInformationSize = (len(hiddenMessageInformationSplit[0]) + len(
-            hiddenMessageInformationSplit[1]) +len(hiddenMessageInformationSplit[2])+ 3) * 8
+            hiddenMessageInformationSplit[1]) + len(hiddenMessageInformationSplit[2]) + 3) * 8
 
         fileName = hiddenMessageInformationSplit[0]
         fileSize = int(hiddenMessageInformationSplit[1])
@@ -121,38 +105,20 @@ class DecodeImageClass:
         self.progress = 40
         # Now extract the message
 
-        StegoImageBinaryList = []
-
-        HiddenMessageLength = fileSize * 8
-
-        i = 0
-        for row in randomRows:
-            BinaryRow = []
-            if i > HiddenMessageLength + hiddenMessageInformationSize:
-                break
-            for column in randomColumns:
-                BinaryColumn = []
-
-                for color in range(len(StegoImage[row][column])):
-                    BinaryColor = IntegerToBinaryString(StegoImage[row][column][color])
-                    BinaryColumn.append(BinaryColor)
-                    i += 1
-                BinaryRow.append(BinaryColumn)
-            StegoImageBinaryList.append(BinaryRow)
-
-        self.progress = 50
         HiddenMessageBinary = []
 
         HiddenMessageLength = fileSize * 8
 
         i = 0
-        for row in range(len(StegoImageBinaryList)):
-            for column in range(len(StegoImageBinaryList[row])):
-                for color in range(len(StegoImageBinaryList[row][column])):
+        for row in randomRows:
+            for column in randomColumns:
+                for color in range(len(StegoImage[row][column])):
                     if i > hiddenMessageInformationSize - 1:
                         if i == HiddenMessageLength + hiddenMessageInformationSize:
                             break
-                        HiddenMessageBinary.append(StegoImageBinaryList[row][column][color][-1])
+
+                        bit = StegoImage[row][column][color] & 1
+                        HiddenMessageBinary.append(str(bit))
 
                     i += 1
             else:
@@ -172,7 +138,6 @@ class DecodeImageClass:
                 BinaryString = ""
                 i = 0
 
-        self.progress = 60
         HiddenMessageAscii = []
 
         for BinaryString in HiddenMessageBinaryList:
@@ -186,7 +151,7 @@ class DecodeImageClass:
         self.progress = 80
         # Save the image in a new text file
 
-        with open(OutputFile, 'w') as f:
+        with open(OutputFile + "/"+fileName, 'w') as f:
             f.write(HiddenMessage)
 
         # Check Signatures
@@ -196,7 +161,7 @@ class DecodeImageClass:
         if extractedSignature == fileSignature:
             self.success = True
         else:
-            self.reason="Text not Extracted Correctly (Signature Error)\nCheck the file to see what was extracted"
+            self.reason = "Text not Extracted Correctly (Signature Error)\nCheck the file to see what was extracted"
 
         self.progress = 100
         self.finished = True
