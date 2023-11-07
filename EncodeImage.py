@@ -79,10 +79,13 @@ class EncodeImageClass:
 
 
         #Sequence to hide the message in generator
+        import random
+        import math
+
         random.seed(4444)
 
-        randomRows = random.sample(range(len(image)), len(image))
-        randomColumns = random.sample(range(len(image[0])), len(image[0]))
+        points = random.sample([[x, y] for x in range(len(image)) for y in range(len(image[0]))],
+                               math.floor(len(messageToAsciiBinarySingleList) / 3) + 1)
 
 
 
@@ -92,18 +95,17 @@ class EncodeImageClass:
 
         i = 0
 
-        for row in randomRows:
-            for column in randomColumns:
-                for color in range(len(image[row][column])):
-                    if (i == len(messageToAsciiBinarySingleList)):
-                        break
-                    if (messageToAsciiBinarySingleList[i] == '1'):
-                        image[row][column][color] |= 1
+        for point in points:
+            for color in range(len(image[point[0]][point[1]])):
+                if i == len(messageToAsciiBinarySingleList):
+                    break
 
-                    else:
-                        image[row][column][color] &= ~1
+                if messageToAsciiBinarySingleList[i] == '1':
+                    image[point[0]][point[1]][color] |= 1
+                else:
+                    image[point[0]][point[1]][color] &= ~1
 
-                    i += 1
+                i += 1
             else:
                 continue
 

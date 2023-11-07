@@ -1,10 +1,8 @@
-import collections as ct
-
-
 def generateSignature(message):
+
     signature = 0
-    for letter in message:
-        signature += ord(letter) ** 2
+    for i in range(len(message)):
+        signature += (ord(message[i]) + i) ** 2  # Now signature takes the position of the letter into account
 
     signatureHex = hex(signature)
     signatureHex = signatureHex[2:]

@@ -12,9 +12,6 @@ class DecodeImageClass:
     def DecodeImageMethod(self, CoverImage, OutputFile):
         # methods used
 
-        def IntegerToBinaryString(number):
-            return '{0:08b}'.format(number)
-
         def BinaryStringToInteger(BinaryString):
             return int(BinaryString, 2)
 
@@ -25,10 +22,13 @@ class DecodeImageClass:
         StegoImage = cv2.cvtColor(StegoImage, cv2.COLOR_BGR2RGB)
 
         # Sequence to hide the message in generator
+        import random
+        import math
+
         random.seed(4444)
 
-        randomRows = random.sample(range(len(StegoImage)), len(StegoImage))
-        randomColumns = random.sample(range(len(StegoImage[0])), len(StegoImage[0]))
+        points = random.sample([[x, y] for x in range(len(StegoImage)) for y in range(len(StegoImage[0]))],
+                               math.floor(400 / 3) + 1)
 
         # Extract File Name and File Size
 
@@ -42,15 +42,14 @@ class DecodeImageClass:
         HiddenMessageInformationLength = 400
 
         i = 0
-        for row in randomRows:
-            for column in randomColumns:
-                for color in range(len(StegoImage[row][column])):
-                    if i == HiddenMessageInformationLength:
-                        break
+        for point in points:
+            for color in range(len(StegoImage[point[0]][point[1]])):
+                if i == HiddenMessageInformationLength:
+                    break
 
-                    bit = StegoImage[row][column][color] & 1
-                    HiddenMessageInformationBinary.append(str(bit))
-                    i += 1
+                bit = StegoImage[point[0]][point[1]][color] & 1
+                HiddenMessageInformationBinary.append(str(bit))
+                i += 1
             else:
                 continue
 
@@ -103,27 +102,34 @@ class DecodeImageClass:
         fileSignature = hiddenMessageInformationSplit[2]
 
         self.progress = 40
+
+        #Generate Sequence for the entire image
+
+        random.seed(4444)
+        HiddenMessageLength = fileSize * 8
+
+        points2 = random.sample([[x, y] for x in range(len(StegoImage)) for y in range(len(StegoImage[0]))],
+                                math.floor((HiddenMessageLength + hiddenMessageInformationSize) / 3) + 1)
+
+
         # Now extract the message
 
         HiddenMessageBinary = []
 
-        HiddenMessageLength = fileSize * 8
-
         i = 0
-        for row in randomRows:
-            for column in randomColumns:
-                for color in range(len(StegoImage[row][column])):
-                    if i > hiddenMessageInformationSize - 1:
-                        if i == HiddenMessageLength + hiddenMessageInformationSize:
-                            break
+        for point in points2:
+            for color in range(len(StegoImage[point[0]][point[1]])):
+                if i > hiddenMessageInformationSize - 1:
 
-                        bit = StegoImage[row][column][color] & 1
-                        HiddenMessageBinary.append(str(bit))
+                    if i == HiddenMessageLength + hiddenMessageInformationSize:
+                        break
 
-                    i += 1
+                    bit = StegoImage[point[0]][point[1]][color] & 1
+                    HiddenMessageBinary.append(str(bit))
+                i += 1
+
             else:
                 continue
-
         HiddenMessageBinaryList = []
         BinaryString = ""
 

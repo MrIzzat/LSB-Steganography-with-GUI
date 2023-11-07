@@ -448,6 +448,7 @@ class GenerateSignature(QDialog):
 
             with open(self.lnedtFile.text()) as f:
                 messageContent = f.read()
+
             signature = generateSignature(messageContent)
 
             self.labelSignature.setText("Generates Signature: " + signature)
@@ -462,9 +463,6 @@ class GenerateSignature(QDialog):
     def backToMainMenu(self):
         widget.setFixedWidth(833)
         widget.setCurrentIndex(0)
-
-
-
 
 app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()  # Create an instance of QStackedWidget
