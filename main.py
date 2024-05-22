@@ -15,8 +15,9 @@ import DecodeImage
 import EncodeImage
 from GenerateSignature import generateSignature
 
-#For building the project
-#https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
+
+# For building the project
+# https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -26,6 +27,7 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
 
 class MainMenu(QDialog):
     def __init__(self):
@@ -46,6 +48,7 @@ class MainMenu(QDialog):
     def GoToDecodePage(self):
         widget.setFixedWidth(1137)
         widget.setCurrentIndex(2)
+
     def GoToGenerateSignaturePage(self):
         widget.setFixedWidth(1137)
         widget.setCurrentIndex(3)
@@ -75,9 +78,9 @@ class EncodeFile(QDialog):
 
             imageSize = len(image) * len(image[0]) * len(image[0][0])
 
-            maxMessageSize = int(imageSize / 8) -50
+            maxMessageSize = int(imageSize / 8) - 50
 
-            self.labelMaxSize.setText("Maximum Size This Photo Can Carry (bytes): "+str(maxMessageSize))
+            self.labelMaxSize.setText("Maximum Size This Photo Can Carry (bytes): " + str(maxMessageSize))
         else:
             self.labelMaxSize.setText("")
 
@@ -141,19 +144,18 @@ class EncodeFile(QDialog):
                     retval = msg.exec_()
                 else:
 
-                    #Check to see if the text fits in the image
+                    # Check to see if the text fits in the image
                     image = cv2.imread(self.lnedtCoverImage.text())
                     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
                     imageSize = len(image) * len(image[0]) * len(image[0][0])
 
-                    maxMessageSize = int(imageSize / 8) -50
+                    maxMessageSize = int(imageSize / 8) - 50
 
                     with open(self.lnedtMessageFile.text()) as f:
                         messageContent = f.read()
 
                     messageContent = messageContent.replace('|', '')
-
 
                     messageContentSize = len(messageContent)
 
@@ -163,7 +165,7 @@ class EncodeFile(QDialog):
                     messageToHide = messageFileName + "|" + str(
                         messageContentSize) + "|" + messageSignature + "|" + messageContent
 
-                    if len(messageToHide) > maxMessageSize -1 :
+                    if len(messageToHide) > maxMessageSize - 1:
 
                         msg = QMessageBox()
                         msg.setIcon(QMessageBox.Warning)
@@ -183,9 +185,6 @@ class EncodeFile(QDialog):
                         t1.start()
 
                         self.startTheThread(encodeImage)
-
-
-
 
     def startTheThread(self, encodeImage):
         t = threading.Thread(daemon=True, name='StatusThread', target=myThreadEncoder,
@@ -282,9 +281,9 @@ class DecodeFile(QDialog):
 
     def loadOutputDestination(self):
 
-        #filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Set Output Destination", './', "Text File (*.txt")
+        # filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Set Output Destination", './', "Text File (*.txt")
 
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self,"Set Output Destination",'./')
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Set Output Destination", './')
 
         if len(directory) != 0:
             self.lnedtOutputDestination.setText(directory)
@@ -318,12 +317,10 @@ class DecodeFile(QDialog):
 
             else:
                 decodeImage = DecodeImage.DecodeImageClass()
-                t1 = Thread(target=self.DecodeThread,kwargs={'decodeImage': decodeImage}, daemon=True)
+                t1 = Thread(target=self.DecodeThread, kwargs={'decodeImage': decodeImage}, daemon=True)
                 t1.start()
 
                 self.startTheThread(decodeImage)
-
-
 
     def startTheThread(self, decodeImage):
         t = threading.Thread(daemon=True, name='StatusThread', target=myThreadDecoder,
@@ -373,20 +370,10 @@ class DecodeFile(QDialog):
                                         msg.setStandardButtons(QMessageBox.Ok)
                                         retval = msg.exec_()
 
-
-
-
-
-
-
-
-
-
     def DecodeThread(self, decodeImage):
         decodeImage.DecodeImageMethod(self.lnedtCoverImage.text()
                                       , self.lnedtOutputDestination.text()
                                       )
-
 
     def backToMainMenu(self):
         widget.setFixedWidth(833)
@@ -395,6 +382,7 @@ class DecodeFile(QDialog):
 
 class CommunicateDecoder(QObject):
     myGUI_signal = pyqtSignal(DecodeImage.DecodeImageClass)
+
 
 def myThreadDecoder(callbackFunc, decodeImage):
     mySrc = CommunicateDecoder()
@@ -406,7 +394,6 @@ def myThreadDecoder(callbackFunc, decodeImage):
         if progress != decodeImage.progress:
             progress = decodeImage.progress
             mySrc.myGUI_signal.emit(decodeImage)
-
 
 
 class GenerateSignature(QDialog):
@@ -454,15 +441,13 @@ class GenerateSignature(QDialog):
             self.labelSignature.setText("Generates Signature: " + signature)
 
             if len(self.lnedtOutputDestination.text()) != 0:
-
                 with open(self.lnedtOutputDestination.text(), 'w') as f:
                     f.write(signature)
-
-
 
     def backToMainMenu(self):
         widget.setFixedWidth(833)
         widget.setCurrentIndex(0)
+
 
 app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()  # Create an instance of QStackedWidget
@@ -487,6 +472,6 @@ sys.exit(app.exec_())
 # If the gui is closed while the encoding proccess is ongoing, the program will throw an exception
 # This is intentional. Its purpose is to prevent the threads from continously running once the gui is shut down.
 
-#https://www.youtube.com/watch?v=p3tSLatmGvU
+# https://www.youtube.com/watch?v=p3tSLatmGvU
 
-#pyinstaller --name=IzzatStego --onefile --windowed --icon=favicon.png main.py
+# pyinstaller --name=IzzatStego --onefile --windowed --icon=favicon.png main.py
