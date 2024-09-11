@@ -22,7 +22,7 @@ def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS2
+       base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
 
@@ -33,6 +33,7 @@ class MainMenu(QDialog):
     def __init__(self):
         super(MainMenu, self).__init__()
         loadUi(resource_path("UI Files\\MainMenu.ui"), self)
+
         self.setFixedHeight(532)
         self.setFixedWidth(833)
         self.btnEncode.clicked.connect(self.GoToEncodePage)
@@ -264,7 +265,7 @@ def myThreadEncoder(callbackFunc, encodeImage):
 class DecodeFile(QDialog):
     def __init__(self):
         super(DecodeFile, self).__init__()
-        loadUi("UI Files\\DecodeFilePage.ui", self)
+        loadUi(resource_path("UI Files\\DecodeFilePage.ui"), self)
         self.btnCoverImage.clicked.connect(self.loadCoverImage)
         self.btnOutputDestination.clicked.connect(self.loadOutputDestination)
         self.btnDecode.clicked.connect(self.thread)
@@ -474,4 +475,4 @@ sys.exit(app.exec_())
 
 # https://www.youtube.com/watch?v=p3tSLatmGvU
 
-# pyinstaller --name=IzzatStego --onefile --windowed --icon=favicon.png main.py
+# pyinstaller --name=IzzatStego --icon=favicon.png --clean --add-data "UI Files\\*;UI Files"  --onefile --windowed  main.py

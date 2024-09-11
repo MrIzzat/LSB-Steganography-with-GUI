@@ -1,5 +1,4 @@
 import cv2
-import random
 from GenerateSignature import generateSignature
 
 
@@ -87,6 +86,7 @@ class DecodeImageClass:
         # Store the hidden message information
 
         hiddenMessageInformationSplit = HiddenMessageInformation.split('|')
+        print(hiddenMessageInformationSplit)
         if len(hiddenMessageInformationSplit) != 4:
             self.finished = True
             self.success = False

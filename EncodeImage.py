@@ -48,6 +48,8 @@ class EncodeImageClass:
 
         messageToHide = messageFileName + "|" + str(messageContentSize) +"|"+messageSignature+"|"+ messageContent
 
+        print(messageFileName + "|" + str(messageContentSize) +"|"+messageSignature)
+
         self.progress=10
         # See if the image will fit inside the photo
 
